@@ -27,21 +27,24 @@ def callback(ch, method, properties, body):
     channel.queue_declare(queue=queue_name_pdf[1])
 
     def callback(ch, method, properties, body):
+        global is_pdf
         if body == 'PDF':
-            global is_pdf
             is_pdf = True
+            print ("Email sent with pdf generated")
+        else:
+            is_pdf = False
+            print ("Email sent invoice will be sent shortly")
         print(" [x] Received %r" % body)
-
     channel.basic_consume(callback,
                           queue=queue_name_pdf[1],
                           no_ack=True)
-
     # time.sleep(30)
-
-    if is_pdf == True:
-        print ("Email sent with pdf generated")
-    else:
-        print ("Email sent invoice will be sent shortly")
+    # global is_pdf
+    # if is_pdf == True:
+    #     print ("Email sent with pdf generated")
+    #     is_pdf = False
+    # else:
+    #     print ("Email sent invoice will be sent shortly")
 
 
 channel.basic_consume(callback,
