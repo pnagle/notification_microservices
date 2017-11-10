@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pika
-import sys
+import sys, time
+is_pdf = False
 
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
@@ -22,18 +23,21 @@ def callback(ch, method, properties, body):
     print(" [x] %r:%r" % (method.routing_key, body))
     queue_name_pdf = body.split(" : ")
     print(" [x] Requesting PDF status")
-    is_pdf = False
 
     channel.queue_declare(queue=queue_name_pdf[1])
 
     def callback(ch, method, properties, body):
         if body == 'PDF':
+            global is_pdf
             is_pdf = True
         print(" [x] Received %r" % body)
 
     channel.basic_consume(callback,
                           queue=queue_name_pdf[1],
                           no_ack=True)
+
+    # time.sleep(30)
+
     if is_pdf == True:
         print ("Email sent with pdf generated")
     else:
